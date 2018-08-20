@@ -1,5 +1,7 @@
 [![ReactNativeChatImageAudio](https://img.youtube.com/vi/o-AKiet6xgo/0.jpg)](https://www.youtube.com/watch?v=o-AKiet6xgo "ReactNativeChatImageAudio")
 
+Just run npm install, react-native run-ios, or react-native run-android
+
 You'll need to create a sensitive.json file in the root directory of the project. This will contain your aws and firebase info
 
 Its structure:
