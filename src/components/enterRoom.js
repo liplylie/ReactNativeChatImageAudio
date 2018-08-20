@@ -17,11 +17,9 @@ export default class enterRoom extends Component {
         this.enterRoom = this.enterRoom.bind(this);
     }
     componentDidMount() {
-        console.log(AwsConfig, "aws config")
     }
 
     onSubmitEdit() {
-        console.log(this.state.text)
         const { firstName, lastName } = this.state
         if (firstName && lastName) {
             this.setState({ enterRoom })
@@ -34,13 +32,14 @@ export default class enterRoom extends Component {
         console.log(this.state, "state")
         const { firstName, lastName, roomName } = this.state
         const user = {
-            id: `${firstName}${lastName}`,
+            _id: `${firstName}${lastName}`,
             name: `${firstName}${lastName}`,
             firstName: firstName,
             lastName: lastName,
             roomName: roomName,
             avatar: `https://upload.wikimedia.org/wikipedia/commons/9/93/Default_profile_picture_%28male%29_on_Facebook.jpg`
         }
+        Actions.chat({user})
     }
     render() {
         if (this.state.enterRoom) {
@@ -49,11 +48,11 @@ export default class enterRoom extends Component {
                     <Text> enter the name of the room </Text>
                     <TextInput
                         style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1 }}
-                        onChangeText={(text) => this.setState({ roomName: text })}
+                        onChangeText={(text) => this.setState({ roomName: text.toUpperCase() })}
                         placeholder="room name"
                     />
                     <TouchableHighlight onPress={this.enterRoom}>
-                        <Text>Press this button to enter the chat room</Text>
+                        <Text>Press here to enter the chat room</Text>
                     </TouchableHighlight>
                 </View>
             );
@@ -65,11 +64,15 @@ export default class enterRoom extends Component {
                     style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1 }}
                     onChangeText={(text) => this.setState({ firstName: text.trim() })}
                     placeholder="first name"
+                    editable={true}
+                    multiline={true}
                 />
                 <TextInput
                     style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1 }}
                     onChangeText={(text) => this.setState({ lastName: text.trim() })}
                     placeholder="last name"
+                    editable={true}
+                    multiline={true}
                 />
                 <TouchableHighlight onPress={this.onSubmitEdit}>
                     <Text>Press when finished</Text>

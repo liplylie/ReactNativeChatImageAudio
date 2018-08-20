@@ -1,9 +1,9 @@
-import sensitive from "../../sensitive.json";
+import * as sensitive from "../../sensitive.json";
 
 export default (AwsConfig = {
-  AccessKey: sensitive.ACCESS_KEY,
-  SecretKey: sensitive.SECRET_KEY,
-  Bucket: sensitive.BUCKET,
+  accessKey: sensitive.ACCESS_KEY,
+  secretKey: sensitive.SECRET_KEY,
+  bucket: sensitive.BUCKET,
   keyPrefix: sensitive.keyPrefix,
   region: sensitive.region
 });

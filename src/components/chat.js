@@ -12,7 +12,7 @@ import {
     KeyboardAvoidingView
 } from "react-native";
 import { AudioRecorder, AudioUtils } from "react-native-audio";
-import PropTypes from "prop-types";
+import propTypes from "prop-types";
 import { RNS3 } from "react-native-aws3";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Sound from "react-native-sound";
@@ -22,12 +22,9 @@ import AwsConfig from "../config/AwsConfig"
 
 const ImagePicker = require("react-native-image-picker");
 
-class Chat extends Component {
-    static PropTypes = {
-        viewer: PropTypes.object,
-        jobId: PropTypes.string,
-        recipientId: PropTypes.string,
-        navFromMessageBoard: PropTypes.boolean
+export default class Chat extends Component {
+    static propTypes = {
+        user: propTypes.object,
     };
     state = {
         messages: [],
@@ -49,8 +46,12 @@ class Chat extends Component {
         }
     };
     componentWillMount() {
-        this.chatsFromFB = firebaseDB.ref(`chat/${this.props.room}`);
+        console.log(AwsConfig, "awsconfig")
+        console.log(this.props, "chat props")
+        this.chatsFromFB = firebaseDB.ref(`/chat/${this.props.user.roomName}`);
+        console.log(this.chatsFromFB, "chats from fb")
         this.chatsFromFB.on("value", snapshot => {
+            console.log(snapshot.val(), "snap shot")
             if (!snapshot.val()) {
                 this.setState({
                     fetchChats: true
@@ -58,6 +59,22 @@ class Chat extends Component {
                 return;
             }
             let { messages } = snapshot.val();
+            messages = messages.map(node => {
+                console.log(node, "node")
+                const message = {};
+                message._id = node._id;
+                message.text = node.messageType === "message" ? node.text : "";
+                message.createdAt = node.createdAt;
+                message.user = {
+                    _id: node.user._id,
+                    name: node.user.name,
+                    avatar: node.user.avatar
+                };
+                message.image = node.messageType === "image" ? node.image : "";
+                message.audio = node.messageType === "audio" ? node.audio : "";
+                message.messageType = node.messageType;
+                return message;
+            });
             this.setState({
                 messages: [...messages]
             });
@@ -103,12 +120,13 @@ class Chat extends Component {
         });
     }
     onSend(messages = []) {
+        messages[0].messageType = "message";
         this.chatsFromFB.update({
             messages: [messages[0], ...this.state.messages]
         });
     }
     renderName = props => {
-        const { user: self } = this.user; // where your user data is stored;
+        const { user: self } = this.props; // where your user data is stored;
         const { user = {} } = props.currentMessage;
         const { user: pUser = {} } = props.previousMessage;
         const isSameUser = pUser._id === user._id;
@@ -132,7 +150,7 @@ class Chat extends Component {
         ) : (
                 <Ionicons
                     name="ios-play"
-                    size={Convert(35)}
+                    size={35}
                     color={this.state.playAudio ? "red" : "blue"}
                     style={{
                         left: 90,
@@ -193,8 +211,8 @@ class Chat extends Component {
             };
             const options = {
                 keyPrefix: AwsConfig.keyPrefix,
-                bucket: AwsConfig.keyPrefix,
-                region: AwsConfig.keyPrefix,
+                bucket: AwsConfig.bucket,
+                region: AwsConfig.region,
                 accessKey: AwsConfig.accessKey,
                 secretKey: AwsConfig.secretKey,
             };
@@ -215,7 +233,7 @@ class Chat extends Component {
                     message.user = {
                         _id: user._id,
                         name: `${user.firstName} ${user.lastName}`,
-                        avatar: `user's photo`
+                        avatar: user.avatar
                     };
                     message.text = "";
                     message.audio = response.headers.Location;
@@ -266,8 +284,8 @@ class Chat extends Component {
                 const correspondingMime = ["image/jpeg", "image/jpeg", "image/png"];
                 const options = {
                     keyPrefix: AwsConfig.keyPrefix,
-                    bucket: AwsConfig.keyPrefix,
-                    region: AwsConfig.keyPrefix,
+                    bucket: AwsConfig.bucket,
+                    region: AwsConfig.region,
                     accessKey: AwsConfig.accessKey,
                     secretKey: AwsConfig.secretKey,
                 };
@@ -295,7 +313,7 @@ class Chat extends Component {
                         message.user = {
                             _id: user._id,
                             name: `${user.firstName} ${user.lastName}`,
-                            avatar: "user avatar here"
+                            avatar: user.avatar
                         };
                         message.image = response.headers.Location;
                         message.messageType = "image";
@@ -315,11 +333,11 @@ class Chat extends Component {
             return (
                 <Ionicons
                     name="ios-mic"
-                    size={Convert(35)}
+                    size={35}
                     hitSlop={{ top: 20, bottom: 20, left: 50, right: 50 }}
                     color={this.state.startAudio ? "red" : "black"}
                     style={{
-                        bottom: Convert(50),
+                        bottom: 50,
                         right: Dimensions.get("window").width / 2,
                         position: "absolute",
                         shadowColor: "#000",
@@ -346,6 +364,7 @@ class Chat extends Component {
 
     render() {
         const { user } = this.props; // wherever you user info is
+        console.log('chat render', user)
         const rightButtonConfig = {
             title: 'Add photo',
             handler: () => this.handleAddPicture(),
@@ -373,11 +392,11 @@ class Chat extends Component {
                             return (
                                 <Ionicons
                                     name="ios-mic"
-                                    size={Convert(35)}
+                                    size={35}
                                     hitSlop={{ top: 20, bottom: 20, left: 50, right: 50 }}
                                     color={this.state.startAudio ? "red" : "black"}
                                     style={{
-                                        bottom: Convert(50),
+                                        bottom: 50,
                                         right: Dimensions.get("window").width / 2,
                                         position: "absolute",
                                         shadowColor: "#000",
@@ -394,7 +413,7 @@ class Chat extends Component {
                     user={{
                         _id: user._id,
                         name: `${user.firstName} ${user.lastName}`,
-                        avatar: `Your photo`
+                        avatar: user.avatar
                     }}
                 />
                 <KeyboardAvoidingView />
@@ -403,4 +422,3 @@ class Chat extends Component {
     }
 }
 
-export { Chat };

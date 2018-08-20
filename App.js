@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ActionConst, Actions, Router, Scene } from "react-native-router-flux";
 import enterRoom from "./src/components/enterRoom";
-//import chat from "./src/components/chat";
+import chat from "./src/components/chat";
 
 export default class App extends React.Component {
   render() {
@@ -12,13 +12,15 @@ export default class App extends React.Component {
           <Scene
             key={"enterRoom"}
             component={enterRoom}
+            hideNavBar
             type={ActionConst.RESET}
           />
-          {/* <Scene
+          <Scene
             key={"chat"}
             component={chat}
+            hideNavBar
             type={ActionConst.RESET}
-          /> */}
+          />
         </Scene>
       </Router>
     );
